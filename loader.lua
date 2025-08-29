@@ -10,12 +10,26 @@ local supportedGames = {
 -- Carregamento dinâmico
 if supportedGames[gamePlaceId] then
     -- Carrega FluentUI primeiro
-    local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+    local success, Fluent = pcall(function()
+        return loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+    end)
+    
+    if not success then
+        warn("[NightHub] Erro ao carregar FluentUI:", Fluent)
+        return
+    end
+    
+    -- Inicializa FluentUI
+    Fluent:Initialize()
+    
     Fluent:Notify({
         Title = "Night Hub",
         Content = "Carregando interface...",
         Duration = 3
     })
+    
+    -- Espera o FluentUI terminar de inicializar
+    repeat task.wait() until Fluent.Initialized
     
     local gameFolder = "games/99Nights/"
     
