@@ -9,12 +9,20 @@ local supportedGames = {
 
 -- Carregamento dinâmico
 if supportedGames[gamePlaceId] then
+    -- Carrega FluentUI primeiro
+    local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+    Fluent:Notify({
+        Title = "Night Hub",
+        Content = "Carregando interface...",
+        Duration = 3
+    })
+    
     local gameFolder = "games/99Nights/"
     
-    -- Carrega UI
+    -- Carrega UI com Fluent
     local uiModule = safeLoad(gameFolder.."UI.lua")
     if uiModule then
-        uiModule.Init()
+        uiModule.Init(Fluent)
     end
     
     -- Carrega funções
