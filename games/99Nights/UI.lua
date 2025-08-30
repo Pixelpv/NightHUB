@@ -4,36 +4,25 @@
 --]]
 
 -- Carregar Fluent UI
-local success, Fluent = pcall(function()
-    return loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-end)
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 
-if not success then
-    game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Night Hub - Erro",
-        Text = "Falha ao carregar Fluent UI",
-        Duration = 5
-    })
-    return
-end
+-- Carregar funções do jogo
+local Functions = loadstring(game:HttpGet("https://raw.githubusercontent.com/Pixelpv/NightHUB/main/games/99Nights/Functions.lua"))()
 
--- Carregar funções
-local success, Functions = pcall(function()
-    return loadstring(game:HttpGet("https://raw.githubusercontent.com/Pixelpv/NightHUB/main/games/99Nights/Functions.lua"))()
-end)
+-- Variáveis globais
+getgenv().AutoCollect = false
+getgenv().AvoidEnemies = false
 
-if not success then
-    game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Night Hub - Erro",
-        Text = "Falha ao carregar funções",
-        Duration = 5
-    })
-    return
+-- Determinar título da janela
+local currentPlaceId = game.PlaceId
+local windowTitle = "Night Hub - 99 Nights in the Forest"
+if currentPlaceId == 126509999114328 then
+    windowTitle = "Night Hub - Partida Ativa"
 end
 
 -- Criar interface
 local Window = Fluent:CreateWindow({
-    Title = "Night Hub - 99 Nights in the Forest",
+    Title = windowTitle,
     SubTitle = "by ntzinho",
     TabWidth = 160,
     Size = UDim2.fromOffset(500, 400),
@@ -47,11 +36,6 @@ local Tabs = {
     Player = Window:AddTab({ Title = "Jogador", Icon = "user" }),
     Settings = Window:AddTab({ Title = "Configurações", Icon = "settings" })
 }
-
--- Variáveis globais
-getgenv().AutoCollect = false
-getgenv().AvoidEnemies = false
-getgenv().NightCollect = false
 
 -- ABA PRINCIPAL
 Tabs.Main:AddParagraph({
@@ -104,15 +88,13 @@ Tabs.Main:AddToggle("AvoidEnemiesToggle", {
 })
 
 Tabs.Main:AddButton({
-    Title = "Coletar Todos os Itens Próximos",
-    Description = "Coleta instantaneamente todos os itens próximos",
+    Title = "Teleport para Base",
+    Description = "Volta rapidamente para a base",
     Callback = function()
-        Functions.AutoCollect()
-        task.wait(1)
-        getgenv().AutoCollect = false
+        Functions.TeleportToBase()
         Fluent:Notify({
             Title = "Night Hub",
-            Content = "Itens próximos coletados",
+            Content = "Teleportando para a base...",
             Duration = 3
         })
     end
@@ -130,6 +112,11 @@ Tabs.Player:AddSlider("WalkSpeedSlider", {
         local character = game.Players.LocalPlayer.Character
         if character and character:FindFirstChild("Humanoid") then
             character.Humanoid.WalkSpeed = Value
+            Fluent:Notify({
+                Title = "Night Hub",
+                Content = "Velocidade ajustada para: " .. Value,
+                Duration = 2
+            })
         end
     end
 })
@@ -145,6 +132,11 @@ Tabs.Player:AddSlider("JumpPowerSlider", {
         local character = game.Players.LocalPlayer.Character
         if character and character:FindFirstChild("Humanoid") then
             character.Humanoid.JumpPower = Value
+            Fluent:Notify({
+                Title = "Night Hub",
+                Content = "Pulo ajustado para: " .. Value,
+                Duration = 2
+            })
         end
     end
 })
@@ -186,6 +178,11 @@ Tabs.Settings:AddButton({
 })
 
 Tabs.Settings:AddParagraph({
+    Title = "Informações",
+    Content = "PlaceID: " .. currentPlaceId
+})
+
+Tabs.Settings:AddParagraph({
     Title = "Créditos",
     Content = "Night Hub desenvolvido por ntzinho. Grátis e sempre será."
 })
@@ -193,16 +190,11 @@ Tabs.Settings:AddParagraph({
 -- Inicializar interface
 Fluent:Notify({
     Title = "Night Hub",
-    Content = "Carregado com sucesso! Bem-vindo.",
+    Content = "Interface carregada com sucesso!",
     Duration = 5
 })
 
 -- Selecionar a primeira aba
 Window:SelectTab(1)
 
--- Confirmar que a interface foi carregada
-game:GetService("StarterGui"):SetCore("SendNotification", {
-    Title = "Night Hub",
-    Text = "Interface carregada com sucesso!",
-    Duration = 3
-})
+print("Night Hub - Interface carregada com sucesso!")
