@@ -1,80 +1,78 @@
--- games/99Nights/Functions.lua
+-- Funções específicas para 99 Nights in the Forest
+
+local GameFunctions = {}
+
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
-local Workspace = game:GetService("Workspace")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local Features = {}
-
--- Sistema de ESP
-Features.ESP = {
-    Enabled = false,
-    Objects = {}
-}
-
-function Features.ESP.Toggle(state)
-    Features.ESP.Enabled = state or not Features.ESP.Enabled
+-- Coletar todos os itens próximos
+function GameFunctions.CollectAllItems()
+    local character = LocalPlayer.Character
+    if not character then return end
     
-    if Features.ESP.Enabled then
-        -- Cria caixas para jogadores
-        for _, player in pairs(Players:GetPlayers()) do
-            if player ~= LocalPlayer then
-                local box = Instance.new("BoxHandleAdornment")
-                box.Adornee = player.Character
-                box.Color3 = Color3.fromRGB(255, 100, 100)
-                box.Transparency = 0.5
-                box.AlwaysOnTop = true
-                box.Parent = Workspace
-                
-                table.insert(Features.ESP.Objects, box)
+    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+    if not humanoidRootPart then return end
+    
+    local items = workspace:FindFirstChild("Items")
+    if not items then return end
+    
+    for _, item in pairs(items:GetChildren()) do
+        if item:IsA("BasePart") and (humanoidRootPart.Position - item.Position).Magnitude < 50 then
+            firetouchinterest(humanoidRootPart, item, 0)
+            firetouchinterest(humanoidRootPart, item, 1)
+        end
+    end
+end
+
+-- Teleport para a base
+function GameFunctions.TeleportToBase()
+    local character = LocalPlayer.Character
+    if not character then return end
+    
+    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+    if not humanoidRootPart then return end
+    
+    local base = workspace:FindFirstChild("Base")
+    if base and base:FindFirstChild("Part") then
+        humanoidRootPart.CFrame = base.Part.CFrame + Vector3.new(0, 5, 0)
+    end
+end
+
+-- Curar personagem
+function GameFunctions.HealCharacter()
+    local character = LocalPlayer.Character
+    if not character then return end
+    
+    local humanoid = character:FindFirstChild("Humanoid")
+    if humanoid then
+        humanoid.Health = humanoid.MaxHealth
+    end
+end
+
+-- Auto coletar itens
+function GameFunctions.AutoCollectItems()
+    GameFunctions.CollectAllItems()
+end
+
+-- Auto matar inimigos
+function GameFunctions.AutoKillEnemies()
+    local character = LocalPlayer.Character
+    if not character then return end
+    
+    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+    if not humanoidRootPart then return end
+    
+    local enemies = workspace:FindFirstChild("Enemies")
+    if not enemies then return end
+    
+    for _, enemy in pairs(enemies:GetChildren()) do
+        if enemy:FindFirstChild("Humanoid") and enemy:FindFirstChild("HumanoidRootPart") then
+            if (humanoidRootPart.Position - enemy.HumanoidRootPart.Position).Magnitude < 50 then
+                enemy.Humanoid.Health = 0
             end
         end
-    else
-        -- Remove todas as caixas
-        for _, obj in ipairs(Features.ESP.Objects) do
-            obj:Destroy()
-        end
-        Features.ESP.Objects = {}
     end
 end
 
--- Sistema de Aimbot
-Features.Aimbot = {
-    Enabled = false,
-    Target = nil
-}
-
-function Features.Aimbot.Toggle(state)
-    Features.Aimbot.Enabled = state or not Features.Aimbot.Enabled
-end
-
--- Sistema de Speed Hack
-Features.SpeedHack = {
-    Enabled = false,
-    Multiplier = 1.5
-}
-
-function Features.SpeedHack.SetMultiplier(value)
-    Features.SpeedHack.Multiplier = value
-end
-
-function Features.SpeedHack.Toggle(state)
-    Features.SpeedHack.Enabled = state or not Features.SpeedHack.Enabled
-end
-
--- Hooking seguro
-local OriginalWalkSpeed = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") and LocalPlayer.Character.Humanoid.WalkSpeed or 16
-
-runService.Stepped:Connect(function()
-    if Features.SpeedHack.Enabled and LocalPlayer.Character then
-        LocalPlayer.Character.Humanoid.WalkSpeed = OriginalWalkSpeed * Features.SpeedHack.Multiplier
-    end
-end)
-
-function Setup()
-    -- Configuração inicial
-end
-
-return {
-    Setup = Setup,
-    Features = Features
-}
+return GameFunctions
