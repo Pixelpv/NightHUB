@@ -1,7 +1,7 @@
 --[[
     Night Hub - Script Hub para Roblox
     Autor: ntzinho
-    Versão: 1.3
+    Versão: 1.4
     Grátis: Sim, sem sistema de chaves
 --]]
 
@@ -68,7 +68,7 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
     Duration = 3
 })
 
--- Carregar a interface do jogo específico
+-- Carregar a interface do jogo específico DIRETAMENTE
 local success, error = pcall(function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/Pixelpv/NightHUB/main/games/99Nights/UI.lua"))()
 end)
