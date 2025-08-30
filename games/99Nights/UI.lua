@@ -4,10 +4,32 @@
 --]]
 
 -- Carregar Fluent UI
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local success, Fluent = pcall(function()
+    return loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+end)
+
+if not success then
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "Night Hub - Erro",
+        Text = "Falha ao carregar Fluent UI",
+        Duration = 5
+    })
+    return
+end
 
 -- Carregar funções
-local Functions = loadstring(game:HttpGet("https://raw.githubusercontent.com/Pixelpv/NightHUB/main/games/99Nights/Functions.lua"))()
+local success, Functions = pcall(function()
+    return loadstring(game:HttpGet("https://raw.githubusercontent.com/Pixelpv/NightHUB/main/games/99Nights/Functions.lua"))()
+end)
+
+if not success then
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "Night Hub - Erro",
+        Text = "Falha ao carregar funções",
+        Duration = 5
+    })
+    return
+end
 
 -- Criar interface
 local Window = Fluent:CreateWindow({
@@ -75,28 +97,6 @@ Tabs.Main:AddToggle("AvoidEnemiesToggle", {
             Fluent:Notify({
                 Title = "Night Hub",
                 Content = "Evitar inimigos desativado",
-                Duration = 3
-            })
-        end
-    end
-})
-
-Tabs.Main:AddToggle("NightCollectToggle", {
-    Title = "Coleta Noturna",
-    Default = false,
-    Callback = function(Value)
-        getgenv().NightCollect = Value
-        if Value then
-            Functions.NightCollect()
-            Fluent:Notify({
-                Title = "Night Hub",
-                Content = "Coleta noturna ativada",
-                Duration = 3
-            })
-        else
-            Fluent:Notify({
-                Title = "Night Hub",
-                Content = "Coleta noturna desativada",
                 Duration = 3
             })
         end
@@ -172,46 +172,6 @@ Tabs.Settings:AddParagraph({
     Content = "Personalize sua experiência com o hub."
 })
 
-Tabs.Settings:AddToggle("AntiBanToggle", {
-    Title = "Proteção Anti-Ban",
-    Default = true,
-    Callback = function(Value)
-        if Value then
-            Fluent:Notify({
-                Title = "Night Hub",
-                Content = "Proteção Anti-Ban ativada",
-                Duration = 3
-            })
-        else
-            Fluent:Notify({
-                Title = "Night Hub",
-                Content = "Proteção Anti-Ban desativada",
-                Duration = 3
-            })
-        end
-    end
-})
-
-Tabs.Settings:AddToggle("AntiResetToggle", {
-    Title = "Proteção Anti-Reset",
-    Default = true,
-    Callback = function(Value)
-        if Value then
-            Fluent:Notify({
-                Title = "Night Hub",
-                Content = "Proteção Anti-Reset ativada",
-                Duration = 3
-            })
-        else
-            Fluent:Notify({
-                Title = "Night Hub",
-                Content = "Proteção Anti-Reset desativada",
-                Duration = 3
-            })
-        end
-    end
-})
-
 Tabs.Settings:AddButton({
     Title = "Fechar Interface",
     Description = "Fecha a interface do Night Hub",
@@ -239,3 +199,10 @@ Fluent:Notify({
 
 -- Selecionar a primeira aba
 Window:SelectTab(1)
+
+-- Confirmar que a interface foi carregada
+game:GetService("StarterGui"):SetCore("SendNotification", {
+    Title = "Night Hub",
+    Text = "Interface carregada com sucesso!",
+    Duration = 3
+})
