@@ -29,15 +29,28 @@ local GuiVisible = true
 -- Adicionar logo do Discord como botão minimizar
 local LogoUrl = "https://cdn.discordapp.com/icons/1309865141525020672/7b0fa16db0e6fdc6238b4bf3b1a71b54.png?size=2048"
 
+-- Esperar a interface ser criada
+task.wait(1)
+
 local LogoButton = Instance.new("ImageButton")
 LogoButton.Name = "NightHubMinimizeButton"
 LogoButton.Image = LogoUrl
-LogoButton.Size = UDim2.new(0, 50, 0, 50)  -- Tamanho menor para botão
-LogoButton.Position = UDim2.new(1, -60, 0, 10)  -- Canto superior direito
+LogoButton.Size = UDim2.new(0, 50, 0, 50)
+LogoButton.Position = UDim2.new(1, -60, 0, 10)
 LogoButton.BackgroundTransparency = 1
-LogoButton.ZIndex = 100  -- Sempre na frente
+LogoButton.ZIndex = 100
 
--- Adicionar à tela, não à janela
+-- Verificar se a imagem carregou, se não, usar fallback
+LogoButton:GetPropertyChangedSignal("Image"):Connect(function()
+    if LogoButton.Image == "" then
+        LogoButton.Image = "rbxassetid://0"  -- Fallback
+    end
+end)
+
+-- Adicionar à tela
+if game:GetService("CoreGui"):FindFirstChild("NightHubMinimizeButton") then
+    game:GetService("CoreGui").NightHubMinimizeButton:Destroy()
+end
 LogoButton.Parent = game:GetService("CoreGui")
 
 -- Função para toggle da GUI
@@ -45,12 +58,13 @@ local function ToggleGUI()
     GuiVisible = not GuiVisible
     local mainFrame = Window:GetParent()
     
-    if GuiVisible then
-        mainFrame.Visible = true
-        LogoButton.ImageTransparency = 0
-    else
-        mainFrame.Visible = false
-        LogoButton.ImageTransparency = 0.5  -- Leve transparência quando minimizado
+    if mainFrame then
+        mainFrame.Visible = GuiVisible
+        if GuiVisible then
+            LogoButton.ImageTransparency = 0
+        else
+            LogoButton.ImageTransparency = 0.5
+        end
     end
 end
 
@@ -66,7 +80,7 @@ LogoButton.MouseLeave:Connect(function()
     game:GetService("TweenService"):Create(LogoButton, TweenInfo.new(0.2), {Size = UDim2.new(0, 50, 0, 50)}):Play()
 end)
 
--- Abas (o resto do código permanece igual)
+-- Abas
 local Tabs = {
     Main = Window:AddTab({ Title = "Principal", Icon = "home" }),
     Player = Window:AddTab({ Title = "Jogador", Icon = "user" }),
@@ -99,8 +113,6 @@ Tabs.Main:AddToggle("AutoCollectToggle", {
     end
 })
 
--- ... (resto do código das abas permanece igual)
-
 Tabs.Player:AddSlider("WalkSpeedSlider", {
     Title = "Velocidade de Movimento",
     Description = "Ajusta a velocidade do personagem",
@@ -126,7 +138,9 @@ Tabs.Settings:AddButton({
     Description = "Fecha completamente a interface",
     Callback = function()
         Window:Destroy()
-        LogoButton:Destroy()  -- Remove o botão também
+        if game:GetService("CoreGui"):FindFirstChild("NightHubMinimizeButton") then
+            game:GetService("CoreGui").NightHubMinimizeButton:Destroy()
+        end
         Fluent:Notify({
             Title = "Night Hub",
             Content = "Interface fechada. Use o loader para reabrir.",
@@ -135,13 +149,13 @@ Tabs.Settings:AddButton({
     end
 })
 
--- Inicializar interface
+-- Notificação inicial
 Fluent:Notify({
     Title = "Night Hub",
-    Content = "Clique na logo para minimizar!",
+    Content = "Logo adicionada como botão minimizar!",
     Duration = 5
 })
 
 Window:SelectTab(1)
 
-print("Night Hub - Interface carregada com botão minimizar!")
+print("✅ Night Hub - Logo carregada como botão minimizar!")
