@@ -21,14 +21,6 @@ for _, supportedId in ipairs(SupportedPlaceIds) do
 end
 
 if isSupported then
-    -- Notificação de inicialização
-    game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Night Hub",
-        Text = "Carregando para 99 Nights...",
-        Duration = 3
-    })
-    
-    wait(1)
     loadstring(game:HttpGet("https://raw.githubusercontent.com/Pixelpv/NightHUB/main/main.lua"))()
 else
     game:GetService("Players").LocalPlayer:Kick("Night Hub não suporta este jogo. Jogos suportados: 99 Nights in the Forest")
