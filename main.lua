@@ -24,22 +24,8 @@ for _, supportedId in ipairs(SupportedPlaceIds) do
 end
 
 if not isSupported then
-    game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Night Hub",
-        Text = "Jogo não suportado",
-        Duration = 5
-    })
     return
 end
-
--- Notificação de inicialização
-game:GetService("StarterGui"):SetCore("SendNotification", {
-    Title = "Night Hub",
-    Text = "Inicializando proteções...",
-    Duration = 2
-})
-
-wait(1)
 
 -- Anti-ban básico
 local function AntiBan()
@@ -52,14 +38,5 @@ end
 -- Inicializar proteção
 spawn(AntiBan)
 
--- Notificação de proteções ativadas
-game:GetService("StarterGui"):SetCore("SendNotification", {
-    Title = "Night Hub",
-    Text = "Proteções anti-ban ativadas",
-    Duration = 3
-})
-
-wait(1)
-
--- Carregar a interface
+-- Carregar a interface do jogo específico
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Pixelpv/NightHUB/main/games/99Nights/UI.lua"))()
