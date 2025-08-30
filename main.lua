@@ -1,7 +1,7 @@
 --[[
     Night Hub - Script Hub para Roblox
     Autor: ntzinho
-    Versão: 1.2
+    Versão: 1.3
     Grátis: Sim, sem sistema de chaves
 --]]
 
@@ -24,8 +24,22 @@ for _, supportedId in ipairs(SupportedPlaceIds) do
 end
 
 if not isSupported then
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "Night Hub",
+        Text = "Jogo não suportado",
+        Duration = 5
+    })
     return
 end
+
+-- Notificação de inicialização
+game:GetService("StarterGui"):SetCore("SendNotification", {
+    Title = "Night Hub",
+    Text = "Inicializando...",
+    Duration = 2
+})
+
+wait(1)
 
 -- Anti-ban básico
 local function AntiBan()
@@ -38,5 +52,31 @@ end
 -- Inicializar proteção
 spawn(AntiBan)
 
+-- Notificação de proteção
+game:GetService("StarterGui"):SetCore("SendNotification", {
+    Title = "Night Hub",
+    Text = "Proteções ativadas!",
+    Duration = 3
+})
+
+wait(1)
+
+-- Notificação de carregamento da UI
+game:GetService("StarterGui"):SetCore("SendNotification", {
+    Title = "Night Hub",
+    Text = "Carregando interface...",
+    Duration = 3
+})
+
 -- Carregar a interface do jogo específico
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Pixelpv/NightHUB/main/games/99Nights/UI.lua"))()
+local success, error = pcall(function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Pixelpv/NightHUB/main/games/99Nights/UI.lua"))()
+end)
+
+if not success then
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "Night Hub - Erro",
+        Text = "Falha ao carregar UI: " .. tostring(error),
+        Duration = 10
+    })
+end
