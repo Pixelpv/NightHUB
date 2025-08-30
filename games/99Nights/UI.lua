@@ -6,13 +6,6 @@
 -- Carregar Fluent UI
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 
--- Carregar funções do jogo
-local Functions = loadstring(game:HttpGet("https://raw.githubusercontent.com/Pixelpv/NightHUB/main/games/99Nights/Functions.lua"))()
-
--- Variáveis globais
-getgenv().AutoCollect = false
-getgenv().AvoidEnemies = false
-
 -- Determinar título da janela
 local currentPlaceId = game.PlaceId
 local windowTitle = "Night Hub - 99 Nights in the Forest"
@@ -47,9 +40,7 @@ Tabs.Main:AddToggle("AutoCollectToggle", {
     Title = "Coleta Automática",
     Default = false,
     Callback = function(Value)
-        getgenv().AutoCollect = Value
         if Value then
-            Functions.AutoCollect()
             Fluent:Notify({
                 Title = "Night Hub",
                 Content = "Coleta automática ativada",
@@ -65,36 +56,13 @@ Tabs.Main:AddToggle("AutoCollectToggle", {
     end
 })
 
-Tabs.Main:AddToggle("AvoidEnemiesToggle", {
-    Title = "Evitar Inimigos",
-    Default = false,
-    Callback = function(Value)
-        getgenv().AvoidEnemies = Value
-        if Value then
-            Functions.AvoidEnemies()
-            Fluent:Notify({
-                Title = "Night Hub",
-                Content = "Evitar inimigos ativado",
-                Duration = 3
-            })
-        else
-            Fluent:Notify({
-                Title = "Night Hub",
-                Content = "Evitar inimigos desativado",
-                Duration = 3
-            })
-        end
-    end
-})
-
 Tabs.Main:AddButton({
     Title = "Teleport para Base",
     Description = "Volta rapidamente para a base",
     Callback = function()
-        Functions.TeleportToBase()
         Fluent:Notify({
             Title = "Night Hub",
-            Content = "Teleportando para a base...",
+            Content = "Teleport em desenvolvimento",
             Duration = 3
         })
     end
@@ -115,26 +83,6 @@ Tabs.Player:AddSlider("WalkSpeedSlider", {
             Fluent:Notify({
                 Title = "Night Hub",
                 Content = "Velocidade ajustada para: " .. Value,
-                Duration = 2
-            })
-        end
-    end
-})
-
-Tabs.Player:AddSlider("JumpPowerSlider", {
-    Title = "Força do Pulo",
-    Description = "Ajusta a altura do pulo",
-    Default = 50,
-    Min = 50,
-    Max = 200,
-    Rounding = 0,
-    Callback = function(Value)
-        local character = game.Players.LocalPlayer.Character
-        if character and character:FindFirstChild("Humanoid") then
-            character.Humanoid.JumpPower = Value
-            Fluent:Notify({
-                Title = "Night Hub",
-                Content = "Pulo ajustado para: " .. Value,
                 Duration = 2
             })
         end
@@ -175,11 +123,6 @@ Tabs.Settings:AddButton({
             Duration = 5
         })
     end
-})
-
-Tabs.Settings:AddParagraph({
-    Title = "Informações",
-    Content = "PlaceID: " .. currentPlaceId
 })
 
 Tabs.Settings:AddParagraph({
