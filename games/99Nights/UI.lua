@@ -18,10 +18,50 @@ local Window = Fluent:CreateWindow({
     Title = windowTitle,
     SubTitle = "by ntzinho",
     TabWidth = 160,
-    Size = UDim2.fromOffset(500, 400),
+    Size = UDim2.fromOffset(500, 500),  -- Aumentado para caber a logo
     Acrylic = true,
     Theme = "Dark"
 })
+
+-- Adicionar logo do Discord
+local LogoUrl = "https://cdn.discordapp.com/icons/1309865141525020672/7b0fa16db0e6fdc6238b4bf3b1a71b54.png?size=2048"
+
+local LogoFrame = Instance.new("Frame")
+LogoFrame.Size = UDim2.new(1, -40, 0, 100)
+LogoFrame.Position = UDim2.new(0, 20, 0, 10)
+LogoFrame.BackgroundTransparency = 1
+LogoFrame.Parent = Window:GetParent()
+
+local LogoImage = Instance.new("ImageLabel")
+LogoImage.Image = LogoUrl
+LogoImage.Size = UDim2.new(0, 80, 0, 80)
+LogoImage.Position = UDim2.new(0.5, -40, 0, 10)
+LogoImage.BackgroundTransparency = 1
+LogoImage.Parent = LogoFrame
+
+local LogoText = Instance.new("TextLabel")
+LogoText.Text = "NIGHT HUB"
+LogoText.Size = UDim2.new(1, 0, 0, 30)
+LogoText.Position = UDim2.new(0, 0, 0, 90)
+LogoText.TextColor3 = Color3.fromRGB(255, 255, 255)
+LogoText.TextScaled = true
+LogoText.Font = Enum.Font.GothamBold
+LogoText.BackgroundTransparency = 1
+LogoText.Parent = LogoFrame
+
+-- Efeito de brilho suave na logo
+spawn(function()
+    while true do
+        for i = 0, 1, 0.1 do
+            LogoImage.ImageTransparency = 0.1 * i
+            wait(0.1)
+        end
+        for i = 0, 1, 0.1 do
+            LogoImage.ImageTransparency = 0.1 - (0.1 * i)
+            wait(0.1)
+        end
+    end
+end)
 
 -- Abas
 local Tabs = {
