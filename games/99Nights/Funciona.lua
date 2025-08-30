@@ -1,78 +1,82 @@
--- Funções específicas para 99 Nights in the Forest
+--[[
+    Night Hub - 99 Nights in the Forest Functions
+    Funções específicas para o jogo
+--]]
 
-local GameFunctions = {}
+local Functions = {}
 
+-- Serviços
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
--- Coletar todos os itens próximos
-function GameFunctions.CollectAllItems()
-    local character = LocalPlayer.Character
-    if not character then return end
-    
-    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-    if not humanoidRootPart then return end
-    
-    local items = workspace:FindFirstChild("Items")
-    if not items then return end
-    
-    for _, item in pairs(items:GetChildren()) do
-        if item:IsA("BasePart") and (humanoidRootPart.Position - item.Position).Magnitude < 50 then
-            firetouchinterest(humanoidRootPart, item, 0)
-            firetouchinterest(humanoidRootPart, item, 1)
-        end
-    end
-end
-
--- Teleport para a base
-function GameFunctions.TeleportToBase()
-    local character = LocalPlayer.Character
-    if not character then return end
-    
-    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-    if not humanoidRootPart then return end
-    
-    local base = workspace:FindFirstChild("Base")
-    if base and base:FindFirstChild("Part") then
-        humanoidRootPart.CFrame = base.Part.CFrame + Vector3.new(0, 5, 0)
-    end
-end
-
--- Curar personagem
-function GameFunctions.HealCharacter()
-    local character = LocalPlayer.Character
-    if not character then return end
-    
-    local humanoid = character:FindFirstChild("Humanoid")
-    if humanoid then
-        humanoid.Health = humanoid.MaxHealth
-    end
-end
-
--- Auto coletar itens
-function GameFunctions.AutoCollectItems()
-    GameFunctions.CollectAllItems()
-end
-
--- Auto matar inimigos
-function GameFunctions.AutoKillEnemies()
-    local character = LocalPlayer.Character
-    if not character then return end
-    
-    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-    if not humanoidRootPart then return end
-    
-    local enemies = workspace:FindFirstChild("Enemies")
-    if not enemies then return end
-    
-    for _, enemy in pairs(enemies:GetChildren()) do
-        if enemy:FindFirstChild("Humanoid") and enemy:FindFirstChild("HumanoidRootPart") then
-            if (humanoidRootPart.Position - enemy.HumanoidRootPart.Position).Magnitude < 50 then
-                enemy.Humanoid.Health = 0
+-- Função para coletar itens automaticamente
+function Functions.AutoCollect()
+    spawn(function()
+        while getgenv().AutoCollect do
+            local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+            local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+            
+            -- Encontrar itens próximos
+            for _, item in ipairs(workspace:GetChildren()) do
+                if item:FindFirstChild("ClickDetector") and (humanoidRootPart.Position - item.Position).Magnitude < 20 then
+                    fireclickdetector(item.ClickDetector)
+                    task.wait(0.1)
+                end
             end
+            task.wait(0.5)
+        end
+    end)
+end
+
+-- Função para evitar inimigos automaticamente
+function Functions.AvoidEnemies()
+    spawn(function()
+        while getgenv().AvoidEnemies do
+            local character = LocalPlayer.Character
+            if character then
+                local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+                if humanoidRootPart then
+                    for _, enemy in ipairs(workspace:GetChildren()) do
+                        if enemy:FindFirstChild("Humanoid") and enemy:FindFirstChild("HumanoidRootPart") then
+                            if (humanoidRootPart.Position - enemy.HumanoidRootPart.Position).Magnitude < 15 then
+                                -- Mover para longe do inimigo
+                                local direction = (humanoidRootPart.Position - enemy.HumanoidRootPart.Position).Unit
+                                humanoidRootPart.CFrame = humanoidRootPart.CFrame + direction * 5
+                                break
+                            end
+                        end
+                    end
+                end
+            end
+            task.wait(0.3)
+        end
+    end)
+end
+
+-- Função para teleportar para locais específicos
+function Functions.TeleportTo(position)
+    local character = LocalPlayer.Character
+    if character then
+        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+        if humanoidRootPart then
+            humanoidRootPart.CFrame = CFrame.new(position)
         end
     end
 end
 
-return GameFunctions
+-- Função para coleta noturna automática
+function Functions.NightCollect()
+    spawn(function()
+        while getgenv().NightCollect do
+            -- Verificar se é noite no jogo
+            local lighting = game:GetService("Lighting")
+            if lighting.ClockTime > 18 or lighting.ClockTime < 6 then
+                Functions.AutoCollect()
+            end
+            task.wait(10) -- Verificar a cada 10 segundos
+        end
+    end)
+end
+
+return Functions
