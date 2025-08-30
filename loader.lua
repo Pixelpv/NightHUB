@@ -1,30 +1,34 @@
 --[[
-    Night Hub Loader - Versão Atualizada
+    Night Hub Loader
     Autor: ntzinho
     Repositório: https://github.com/Pixelpv/NightHUB.git
 --]]
 
 local PlaceId = game.PlaceId
+local SupportedPlaceIds = {
+    79546208627805,    -- PlaceId principal
+    7326934954,        -- PlaceId secundário
+    126509999114328    -- PlaceId das partidas (NOVO)
+}
 
 -- Verificar se o jogo atual é suportado
-if PlaceId == 79546208627805 or PlaceId == 7326934954 then
+local isSupported = false
+for _, supportedId in ipairs(SupportedPlaceIds) do
+    if PlaceId == supportedId then
+        isSupported = true
+        break
+    end
+end
+
+if isSupported then
     -- Notificação de inicialização
     game:GetService("StarterGui"):SetCore("SendNotification", {
         Title = "Night Hub",
-        Text = "Injetando script...",
+        Text = "Carregando para 99 Nights...",
         Duration = 3
     })
     
-    -- Esperar o jogador entrar no jogo completamente
-    if not game:IsLoaded() then
-        game.Loaded:Wait()
-    end
-    
-    if not game.Players.LocalPlayer then
-        game.Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
-    end
-    
-    -- Carregar o script principal
+    wait(1)
     loadstring(game:HttpGet("https://raw.githubusercontent.com/Pixelpv/NightHUB/main/main.lua"))()
 else
     game:GetService("Players").LocalPlayer:Kick("Night Hub não suporta este jogo. Jogos suportados: 99 Nights in the Forest")
