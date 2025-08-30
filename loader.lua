@@ -1,43 +1,72 @@
--- loader.lua
-local gamePlaceId = game.PlaceId
+-- Night Hub Loader
+-- Repository: https://github.com/Pixelpv/NightHUB.git
 
--- IDs suportados
-local supportedGames = {
-    [7326934954] = true, -- Secundário
-    [79546208627805] = true -- Padrão
+local NightHub = {
+    Version = "1.0.0",
+    Author = "Pixelpv",
+    Repository = "https://github.com/Pixelpv/NightHUB.git",
+    Free = true,
+    NoKey = true
 }
 
--- Carregamento dinâmico
-if supportedGames[gamePlaceId] then
-    -- Carrega FluentUI primeiro
-    local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-    Fluent:Notify({
-        Title = "Night Hub",
-        Content = "Carregando interface...",
-        Duration = 3
-    })
-    
-    local gameFolder = "games/99Nights/"
-    
-    -- Carrega UI com Fluent
-    local uiModule = safeLoad(gameFolder.."UI.lua")
-    if uiModule then
-        uiModule.Init(Fluent)
-    end
-    
-    -- Carrega funções
-    local funcModule = safeLoad(gameFolder.."Functions.lua")
-    if funcModule then
-        funcModule.Setup()
-    end
-else
-    warn("[NightHub] Jogo não suportado!")
+-- Anti-ban básico
+local function AntiBan()
+    local originalNamecall
+    originalNamecall = hookmetamethod(game, "__namecall", function(self, ...)
+        local method = getnamecallmethod()
+        local args = {...}
+        
+        -- Prevenir detecções comuns
+        if method == "Kick" or method == "kick" then
+            return nil
+        end
+        
+        if method == "Teleport" and tostring(self) == "TeleportService" then
+            return nil
+        end
+        
+        return originalNamecall(self, ...)
+    end)
 end
 
--- Proteção anti-ban
-coroutine.wrap(function()
-    while getgenv().AntiReset.Enabled do
-        wait(getgenv().AntiReset.BackupInterval)
-        -- Lógica de backup aqui
+-- Anti-reset básico
+local function AntiReset()
+    game:GetService("Players").LocalPlayer.CharacterAdded:Connect(function(character)
+        character:WaitForChild("Humanoid").Died:Connect(function()
+            wait(2)
+            if game:GetService("Players").LocalPlayer.Character then
+                game:GetService("Players").LocalPlayer.Character:BreakJoints()
+            end
+        end)
+    end)
+end
+
+-- Carregador principal
+local function LoadNightHub()
+    -- Aplicar proteções
+    AntiBan()
+    AntiReset()
+    
+    -- Verificar se o jogo é suportado
+    local currentPlaceId = game.PlaceId
+    local supportedGames = {
+        [7326934954] = true,
+        [79546208627805] = true
+    }
+    
+    if not supportedGames[currentPlaceId] then
+        warn("[Night Hub] Jogo não suportado: " .. currentPlaceId)
+        return
     end
-end)()
+    
+    -- Carregar a UI principal
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Pixelpv/NightHUB/main/main.lua"))()
+end
+
+-- Inicializar
+if not _G.NightHubLoaded then
+    _G.NightHubLoaded = true
+    LoadNightHub()
+end
+
+return NightHub
