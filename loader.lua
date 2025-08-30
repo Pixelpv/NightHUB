@@ -8,7 +8,7 @@ local PlaceId = game.PlaceId
 local SupportedPlaceIds = {
     79546208627805,    -- PlaceId principal
     7326934954,        -- PlaceId secundário
-    126509999114328    -- PlaceId das partidas (NOVO)
+    126509999114328    -- PlaceId das partidas
 }
 
 -- Verificar se o jogo atual é suportado
