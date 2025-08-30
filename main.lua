@@ -39,6 +39,17 @@ spawn(AntiReset)
 -- Carregar interface para o jogo específico
 local PlaceId = game.PlaceId
 if PlaceId == 79546208627805 or PlaceId == 7326934954 then
+    -- Notificação de carregamento
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "Night Hub",
+        Text = "Carregando interface para 99 Nights...",
+        Duration = 3
+    })
+    
+    -- Dar tempo para a notificação aparecer
+    wait(1)
+    
+    -- Carregar a interface
     loadstring(game:HttpGet("https://raw.githubusercontent.com/Pixelpv/NightHUB/main/games/99Nights/UI.lua"))()
 else
     game:GetService("StarterGui"):SetCore("SendNotification", {
