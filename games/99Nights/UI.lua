@@ -1,111 +1,85 @@
 --[[
-    Night Hub - Sistema de Toggle Profissional
+    Night Hub - Interface Simples com Movimento
 --]]
 
 -- Carregar Fluent UI
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 
--- Criar interface
+-- Criar interface com tema escuro
 local Window = Fluent:CreateWindow({
     Title = "Night Hub - 99 Nights",
     SubTitle = "by ntzinho",
     TabWidth = 160,
-    Size = UDim2.fromOffset(450, 350),
-    Acrylic = true,
+    Size = UDim2.fromOffset(400, 300),
+    Acrylic = false, -- Desativar acrílico para melhor performance
     Theme = "Dark"
 })
 
--- Obter o frame principal do Fluent (fix)
-local mainFrame = Window:GetWindow()
+-- Obter a main frame para tornar móvel
+local mainFrame = Window:GetParent()
+mainFrame.Active = true
+mainFrame.Draggable = true
 
--- Variáveis
-local GuiVisible = true
-local LogoUrl = "https://raw.githubusercontent.com/Pixelpv/NightHUB/main/logo.png"
+-- Estilizar a janela para tema cinza/preto
+mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+mainFrame.BorderSizePixel = 1
+mainFrame.BorderColor3 = Color3.fromRGB(80, 80, 80)
 
--- Remover botão anterior se existir
-if game:GetService("CoreGui"):FindFirstChild("NightHubToggle") then
-    game:GetService("CoreGui").NightHubToggle:Destroy()
-end
-
--- Criar botão da logo
-local LogoButton = Instance.new("ImageButton")
-LogoButton.Name = "NightHubToggle"
-LogoButton.Image = LogoUrl
-LogoButton.Size = UDim2.new(0, 50, 0, 50)
-LogoButton.Position = UDim2.new(1, -70, 0, 20)
-LogoButton.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
-LogoButton.BackgroundTransparency = 0.3
-LogoButton.BorderSizePixel = 0
-LogoButton.ZIndex = 9999 -- sempre na frente
-LogoButton.Parent = game:GetService("CoreGui")
-
--- Arredondar botão
-local UICorner = Instance.new("UICorner")
-UICorner.CornerRadius = UDim.new(0, 12)
-UICorner.Parent = LogoButton
-
--- Função toggle
-local function ToggleGUI()
-    GuiVisible = not GuiVisible
-    if mainFrame then
-        mainFrame.Visible = GuiVisible
-    end
-
-    -- Feedback visual
-    if GuiVisible then
-        LogoButton.BackgroundTransparency = 0.3
-        LogoButton.ImageTransparency = 0
-    else
-        LogoButton.BackgroundTransparency = 0.1
-        LogoButton.ImageTransparency = 0.3
-    end
-end
-
--- Conectar eventos
-LogoButton.MouseButton1Click:Connect(ToggleGUI)
-
-LogoButton.MouseEnter:Connect(function()
-    game:GetService("TweenService"):Create(LogoButton, TweenInfo.new(0.2), {
-        Size = UDim2.new(0, 55, 0, 55),
-        BackgroundTransparency = 0.2
-    }):Play()
-end)
-
-LogoButton.MouseLeave:Connect(function()
-    game:GetService("TweenService"):Create(LogoButton, TweenInfo.new(0.2), {
-        Size = UDim2.new(0, 50, 0, 50),
-        BackgroundTransparency = GuiVisible and 0.3 or 0.1
-    }):Play()
-end)
-
--- Abas
+-- Abas com estilo minimalista
 local Tabs = {
     Main = Window:AddTab({Title = "Principal", Icon = "home"}),
     Player = Window:AddTab({Title = "Jogador", Icon = "user"})
 }
 
+-- ABA PRINCIPAL - Estilo simples
 Tabs.Main:AddParagraph({
-    Title = "🌙 Night Hub",
-    Content = "Use a logo para abrir/fechar o menu"
+    Title = "🌙 NIGHT HUB",
+    Content = "Arraste para mover • by ntzinho"
 })
 
-Tabs.Main:AddToggle("AutoFarm", {
+Tabs.Main:AddToggle("AutoCollect", {
     Title = "Coleta Automática",
     Default = false,
     Callback = function(Value)
         Fluent:Notify({
             Title = "Night Hub",
-            Content = Value and "Farm ativado!" or "Farm desativado!",
+            Content = Value and "Coleta ativada!" or "Coleta desativada!",
             Duration = 2
         })
     end
 })
 
+Tabs.Main:AddToggle("AvoidEnemies", {
+    Title = "Evitar Inimigos", 
+    Default = false,
+    Callback = function(Value)
+        Fluent:Notify({
+            Title = "Night Hub",
+            Content = Value and "Evasão ativada!" or "Evasão desativada!",
+            Duration = 2
+        })
+    end
+})
+
+Tabs.Main:AddButton({
+    Title = "Teleport para Base",
+    Callback = function()
+        Fluent:Notify({
+            Title = "Night Hub", 
+            Content = "Função em desenvolvimento",
+            Duration = 2
+        })
+    end
+})
+
+-- ABA JOGADOR
 Tabs.Player:AddSlider("WalkSpeed", {
     Title = "Velocidade",
+    Description = "16 (normal) até 100",
     Default = 16,
     Min = 16,
     Max = 100,
+    Rounding = 0,
     Callback = function(Value)
         local char = game.Players.LocalPlayer.Character
         if char and char:FindFirstChild("Humanoid") then
@@ -114,16 +88,45 @@ Tabs.Player:AddSlider("WalkSpeed", {
     end
 })
 
+Tabs.Player:AddSlider("JumpPower", {
+    Title = "Força do Pulo", 
+    Description = "50 (normal) até 200",
+    Default = 50,
+    Min = 50,
+    Max = 200,
+    Rounding = 0,
+    Callback = function(Value)
+        local char = game.Players.LocalPlayer.Character
+        if char and char:FindFirstChild("Humanoid") then
+            char.Humanoid.JumpPower = Value
+        end
+    end
+})
+
+Tabs.Player:AddButton({
+    Title = "Resetar Valores",
+    Callback = function()
+        local char = game.Players.LocalPlayer.Character
+        if char and char:FindFirstChild("Humanoid") then
+            char.Humanoid.WalkSpeed = 16
+            char.Humanoid.JumpPower = 50
+            Fluent:Notify({
+                Title = "Night Hub",
+                Content = "Valores resetados!",
+                Duration = 2
+            })
+        end
+    end
+})
+
+-- Botão para fechar
 Tabs.Main:AddButton({
-    Title = "Fechar Hub",
+    Title = "❌ Fechar Interface",
     Callback = function()
         Window:Destroy()
-        if game:GetService("CoreGui"):FindFirstChild("NightHubToggle") then
-            game:GetService("CoreGui").NightHubToggle:Destroy()
-        end
         Fluent:Notify({
             Title = "Night Hub",
-            Content = "Hub fechado!",
+            Content = "Interface fechada!",
             Duration = 3
         })
     end
@@ -131,9 +134,11 @@ Tabs.Main:AddButton({
 
 -- Notificação inicial
 Fluent:Notify({
-    Title = "✅ Night Hub",
-    Content = "Clique na logo para toggle!",
+    Title = "NIGHT HUB",
+    Content = "Interface carregada • Arraste para mover",
     Duration = 4
 })
 
 Window:SelectTab(1)
+
+print("✅ Night Hub - Interface simples carregada!")
