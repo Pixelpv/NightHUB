@@ -5,7 +5,7 @@
 -- Carregar Fluent UI
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 
--- Criar interface PRIMEIRO
+-- Criar interface
 local Window = Fluent:CreateWindow({
     Title = "Night Hub - 99 Nights",
     SubTitle = "by ntzinho",
@@ -15,45 +15,43 @@ local Window = Fluent:CreateWindow({
     Theme = "Dark"
 })
 
--- Obter a main frame da interface
-local mainFrame = Window:GetParent()
+-- Obter o frame principal do Fluent (fix)
+local mainFrame = Window:GetWindow()
 
--- Sistema de toggle da GUI
+-- Variáveis
 local GuiVisible = true
 local LogoUrl = "https://raw.githubusercontent.com/Pixelpv/NightHUB/main/logo.png"
-
--- Criar botão da logo
-local LogoButton = Instance.new("ImageButton")
-LogoButton.Name = "NightHubToggle"
-LogoButton.Image = LogoUrl
-LogoButton.Size = UDim2.new(0, 50, 0, 50)
-LogoButton.Position = UDim2.new(1, -60, 0, 10)
-LogoButton.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
-LogoButton.BackgroundTransparency = 0.3
-LogoButton.BorderSizePixel = 0
-LogoButton.ZIndex = 100
-
--- Arredondar botão
-local UICorner = Instance.new("UICorner")
-UICorner.CornerRadius = UDim.new(0, 12)
-UICorner.Parent = LogoButton
 
 -- Remover botão anterior se existir
 if game:GetService("CoreGui"):FindFirstChild("NightHubToggle") then
     game:GetService("CoreGui").NightHubToggle:Destroy()
 end
 
+-- Criar botão da logo
+local LogoButton = Instance.new("ImageButton")
+LogoButton.Name = "NightHubToggle"
+LogoButton.Image = LogoUrl
+LogoButton.Size = UDim2.new(0, 50, 0, 50)
+LogoButton.Position = UDim2.new(1, -70, 0, 20)
+LogoButton.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+LogoButton.BackgroundTransparency = 0.3
+LogoButton.BorderSizePixel = 0
+LogoButton.ZIndex = 9999 -- sempre na frente
 LogoButton.Parent = game:GetService("CoreGui")
 
--- Função para toggle suave
+-- Arredondar botão
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 12)
+UICorner.Parent = LogoButton
+
+-- Função toggle
 local function ToggleGUI()
     GuiVisible = not GuiVisible
-    
     if mainFrame then
         mainFrame.Visible = GuiVisible
     end
-    
-    -- Feedback visual no botão
+
+    -- Feedback visual
     if GuiVisible then
         LogoButton.BackgroundTransparency = 0.3
         LogoButton.ImageTransparency = 0
@@ -63,10 +61,9 @@ local function ToggleGUI()
     end
 end
 
--- Conectar clique
+-- Conectar eventos
 LogoButton.MouseButton1Click:Connect(ToggleGUI)
 
--- Efeitos hover profissionais
 LogoButton.MouseEnter:Connect(function()
     game:GetService("TweenService"):Create(LogoButton, TweenInfo.new(0.2), {
         Size = UDim2.new(0, 55, 0, 55),
@@ -81,7 +78,7 @@ LogoButton.MouseLeave:Connect(function()
     }):Play()
 end)
 
--- Abas (conteúdo normal)
+-- Abas
 local Tabs = {
     Main = Window:AddTab({Title = "Principal", Icon = "home"}),
     Player = Window:AddTab({Title = "Jogador", Icon = "user"})
@@ -117,7 +114,6 @@ Tabs.Player:AddSlider("WalkSpeed", {
     end
 })
 
--- Fechar completamente
 Tabs.Main:AddButton({
     Title = "Fechar Hub",
     Callback = function()
