@@ -1,7 +1,6 @@
-
 --[[
     Night Hub - 99 Nights in the Forest UI
-    Interface do usuário usando Fluent UI com toggle mobile
+    Interface do usuário usando Fluent UI com toggle funcional
 --]]
 
 -- Carregar Fluent UI
@@ -10,6 +9,7 @@ local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/
 -- Variáveis de estado
 local isUIOpen = true
 local toggleImage
+local screenGui
 
 -- Determinar título da janela
 local currentPlaceId = game.PlaceId
@@ -28,8 +28,41 @@ local Window = Fluent:CreateWindow({
     Theme = "Dark"
 })
 
--- Remover o minimize key para mobile
-Window.MinimizeKey = nil
+-- Função para mostrar/ocultar a UI
+local function ToggleUI()
+    if isUIOpen then
+        -- Fechar a UI
+        for _, tab in pairs(Window.Tabs) do
+            tab:SetEnabled(false)
+        end
+        Window:GetGui().Enabled = false
+        isUIOpen = false
+        
+        -- Animação de fechamento do toggle
+        if toggleImage then
+            game:GetService("TweenService"):Create(toggleImage, TweenInfo.new(0.3), {
+                ImageTransparency = 0.5,
+                Size = UDim2.new(0, 50, 0, 50)
+            }):Play()
+        end
+        
+    else
+        -- Abrir a UI
+        for _, tab in pairs(Window.Tabs) do
+            tab:SetEnabled(true)
+        end
+        Window:GetGui().Enabled = true
+        isUIOpen = true
+        
+        -- Animação de abertura do toggle
+        if toggleImage then
+            game:GetService("TweenService"):Create(toggleImage, TweenInfo.new(0.3), {
+                ImageTransparency = 0,
+                Size = UDim2.new(0, 60, 0, 60)
+            }):Play()
+        end
+    end
+end
 
 -- Função para criar o toggle de logo
 local function CreateToggleLogo()
@@ -37,9 +70,12 @@ local function CreateToggleLogo()
     if toggleImage then
         toggleImage:Destroy()
     end
+    if screenGui then
+        screenGui:Destroy()
+    end
     
     -- Criar screen gui para o toggle
-    local screenGui = Instance.new("ScreenGui")
+    screenGui = Instance.new("ScreenGui")
     screenGui.Name = "NightHubToggleGui"
     screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     screenGui.ResetOnSpawn = false
@@ -75,28 +111,7 @@ local function CreateToggleLogo()
     
     -- Função de toggle
     toggleImage.MouseButton1Click:Connect(function()
-        if isUIOpen then
-            -- Fechar a UI
-            Window:Hide()
-            isUIOpen = false
-            
-            -- Animação de fechamento do toggle
-            game:GetService("TweenService"):Create(toggleImage, TweenInfo.new(0.3), {
-                ImageTransparency = 0.2,
-                Size = UDim2.new(0, 50, 0, 50)
-            }):Play()
-            
-        else
-            -- Abrir a UI
-            Window:Show()
-            isUIOpen = true
-            
-            -- Animação de abertura do toggle
-            game:GetService("TweenService"):Create(toggleImage, TweenInfo.new(0.3), {
-                ImageTransparency = 0,
-                Size = UDim2.new(0, 60, 0, 60)
-            }):Play()
-        end
+        ToggleUI()
     end)
     
     screenGui.Parent = game:GetService("CoreGui")
@@ -136,35 +151,11 @@ Tabs.Main:AddToggle("AutoCollectToggle", {
     end
 })
 
-Tabs.Main:AddToggle("AvoidEnemiesToggle", {
-    Title = "Evitar Inimigos",
-    Default = false,
-    Callback = function(Value)
-        if Value then
-            Fluent:Notify({
-                Title = "Night Hub",
-                Content = "Evitar inimigos ativado",
-                Duration = 3
-            })
-        else
-            Fluent:Notify({
-                Title = "Night Hub",
-                Content = "Evitar inimigos desativado",
-                Duration = 3
-            })
-        end
-    end
-})
-
 Tabs.Main:AddButton({
-    Title = "Teleport para Base",
-    Description = "Volta rapidamente para a base",
+    Title = "Abrir/Fechar Menu",
+    Description = "Alterna a visibilidade do menu",
     Callback = function()
-        Fluent:Notify({
-            Title = "Night Hub",
-            Content = "Teleport em desenvolvimento",
-            Duration = 3
-        })
+        ToggleUI()
     end
 })
 
@@ -189,37 +180,16 @@ Tabs.Player:AddSlider("WalkSpeedSlider", {
     end
 })
 
-Tabs.Player:AddSlider("JumpPowerSlider", {
-    Title = "Força do Pulo",
-    Description = "Ajusta a altura do pulo",
-    Default = 50,
-    Min = 50,
-    Max = 200,
-    Rounding = 0,
-    Callback = function(Value)
-        local character = game.Players.LocalPlayer.Character
-        if character and character:FindFirstChild("Humanoid") then
-            character.Humanoid.JumpPower = Value
-            Fluent:Notify({
-                Title = "Night Hub",
-                Content = "Pulo ajustado para: " .. Value,
-                Duration = 2
-            })
-        end
-    end
-})
-
 Tabs.Player:AddButton({
-    Title = "Resetar Velocidades",
-    Description = "Volta aos valores padrão",
+    Title = "Resetar Velocidade",
+    Description = "Volta à velocidade padrão",
     Callback = function()
         local character = game.Players.LocalPlayer.Character
         if character and character:FindFirstChild("Humanoid") then
             character.Humanoid.WalkSpeed = 16
-            character.Humanoid.JumpPower = 50
             Fluent:Notify({
                 Title = "Night Hub",
-                Content = "Velocidades resetadas",
+                Content = "Velocidade resetada para 16",
                 Duration = 3
             })
         end
@@ -227,31 +197,12 @@ Tabs.Player:AddButton({
 })
 
 -- ABA CONFIGURAÇÕES
-Tabs.Settings:AddParagraph({
-    Title = "Configurações Mobile",
-    Content = "Configurações para dispositivos móveis"
-})
-
 Tabs.Settings:AddToggle("ToggleVisibility", {
     Title = "Mostrar Botão Toggle",
     Default = true,
     Callback = function(Value)
         if toggleImage then
             toggleImage.Visible = Value
-        end
-    end
-})
-
-Tabs.Settings:AddButton({
-    Title = "Mover Botão Toggle",
-    Description = "Clique e arraste para reposicionar",
-    Callback = function()
-        if toggleImage then
-            Fluent:Notify({
-                Title = "Night Hub",
-                Content = "Segure e arraste o botão para mover",
-                Duration = 5
-            })
         end
     end
 })
@@ -264,6 +215,9 @@ Tabs.Settings:AddButton({
         if toggleImage then
             toggleImage:Destroy()
         end
+        if screenGui then
+            screenGui:Destroy()
+        end
         Fluent:Notify({
             Title = "Night Hub",
             Content = "Interface fechada. Use o loader para reabrir.",
@@ -272,55 +226,48 @@ Tabs.Settings:AddButton({
     end
 })
 
-Tabs.Settings:AddParagraph({
-    Title = "Créditos",
-    Content = "Night Hub desenvolvido por ntzinho. Grátis e sempre será."
-})
-
 -- Criar o toggle inicial
 CreateToggleLogo()
 
 -- Adicionar funcionalidade de arrastar ao toggle
-if toggleImage then
-    local dragging = false
-    local dragInput, dragStart, startPos
+local dragging = false
+local dragInput, dragStart, startPos
 
-    toggleImage.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = true
-            dragStart = input.Position
-            startPos = toggleImage.Position
-            
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
-                end
-            end)
-        end
-    end)
+toggleImage.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = toggleImage.Position
+        
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
 
-    toggleImage.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-            dragInput = input
-        end
-    end)
+toggleImage.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
 
-    game:GetService("UserInputService").InputChanged:Connect(function(input)
-        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-            local delta = input.Position - dragStart
-            toggleImage.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-        end
-    end)
-end
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - dragStart
+        toggleImage.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
 
 -- Inicializar interface
 Fluent:Notify({
     Title = "Night Hub",
-    Content = "Interface carregada! Use a logo para toggle.",
+    Content = "Interface carregada! Clique na logo para toggle.",
     Duration = 5
 })
 
 -- Selecionar a primeira aba
 Window:SelectTab(1)
 
-print("Night Hub - Interface mobile carregada com sucesso!")
+print("Night Hub - Toggle funcional carregado!")
